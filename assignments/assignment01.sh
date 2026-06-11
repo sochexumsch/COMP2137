@@ -24,7 +24,7 @@ uptime=$(uptime -p)
 
 cpu=$(lscpu 2>/dev/null | awk -F: '/Model name/ {print $2}' | xargs)
 
-ram=$(free -h | awk '/Mem/ {print $2}')
+ram=$(lsmem 2>/dev/null | awk '/Total online/ {print $4}')
 
 disks=$(sudo lshw -class disk 2>/dev/null | awk -F: '/product/ {product=$2}/size:/ {size=$2; print product " -" size}' | paste -sd "," -)
 
