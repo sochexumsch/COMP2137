@@ -25,8 +25,18 @@ uptime=$(uptime -p)
 cpu=$(lscpu 2>/dev/null | awk -F: '/Model name/ {print $2}' | xargs)
 
 ram=$(lsmem 2>/dev/null | awk '/Total online/ {print $4}')
+if [ "$ram" = "" ];
+	then
+	ram="Install util-linux-extra to use 'lsmem'"
+fi
 
-disks=$(sudo lshw -class disk 2>/dev/null | awk -F: '/product/ {product=$2}/size:/ {size=$2; print product " -" size}' | paste -sd "," -)
+# For VMware virtualized NVME disks
+disks=$(lsblk -do VENDOR,MODEL,SIZE | awk '/VMware Virtual NVMe/ {print $1, $2, $3, $4 " - " $5}')
+# For VMware virtualized SCSI disks
+if [ "$disks" = "" ];
+	then
+	disks=$(lsblk -do VENDOR,MODEL,SIZE | awk '/VMware,/ {print $1, $2, $3, $4, $5}')
+fi
 
 video=$(sudo lshw -class video 2>/dev/null | awk -F: '/product/ {model=$2}/vendor/ {make=$2; print make " -" model}')
 if [ "$video" = "" ];
